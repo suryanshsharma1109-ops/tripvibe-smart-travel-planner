@@ -18,9 +18,9 @@ Open `index.html` in a modern browser. The project uses plain HTML, CSS, and Jav
 
 ## Public website
 
-The repository includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`. It publishes the site from the repository root whenever code is pushed to `main`.
+The live site is [TripVibe Smart Travel Planner](https://suryanshsharma1109-ops.github.io/tripvibe-smart-travel-planner/).
 
-For the first deployment, set the repository's Pages source to **GitHub Actions** in **Settings → Pages → Build and deployment**. Later pushes deploy automatically. The expected site address is `https://suryanshsharma1109-ops.github.io/tripvibe-smart-travel-planner/`.
+The repository's Pages source is configured for **GitHub Actions**. The workflow at `.github/workflows/deploy-pages.yml` publishes the repository root on pushes to `main`; it can also be run manually from the Actions tab.
 
 ## Data and estimate notes
 
