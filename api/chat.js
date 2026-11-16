@@ -142,7 +142,24 @@ module.exports = async function chat(req, res) {
       }),
     });
 
-    if (!upstream.ok) return reply(res, 502, { error: 'The AI assistant could not answer right now.' });
+    if (!upstream.ok) {
+      const providerFailure = await upstream.json().catch(() => ({}));
+      const providerCode = String(providerFailure.error && (providerFailure.error.code || providerFailure.error.type) || '');
+      console.error('TripVibe OpenAI request failed', { status: upstream.status, code: providerCode });
+      if (upstream.status === 401) {
+        return reply(res, 502, { error: 'OpenAI rejected the API key. Replace OPENAI_API_KEY in Vercel with a new active key, then redeploy.' });
+      }
+      if (upstream.status === 429) {
+        return reply(res, 502, { error: 'OpenAI returned a quota or rate-limit error. Check API billing and usage limits, then retry.' });
+      }
+      if (upstream.status === 403) {
+        return reply(res, 502, { error: 'OpenAI denied access to this API project or model. Check the key’s project permissions and model access.' });
+      }
+      if (upstream.status === 400) {
+        return reply(res, 502, { error: 'OpenAI rejected the request configuration. Check that OPENAI_MODEL is set to gpt-4.1-mini or another supported model.' });
+      }
+      return reply(res, 502, { error: `The AI provider returned an error (HTTP ${upstream.status}). Please try again later.` });
+    }
     const data = await upstream.json();
     const text = outputText(data);
     if (!text) return reply(res, 502, { error: 'The AI assistant could not answer right now.' });
