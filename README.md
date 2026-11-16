@@ -10,17 +10,18 @@ A responsive first-page prototype for planning road trips from Lovely Profession
 - Round-trip fuel estimates based on editable mileage and fuel price.
 - A rental estimate that adds the listed daily rental rate to estimated fuel.
 - A light/dark theme switch that remembers the user's selection in the browser.
-- A small travel-chat interface with sample replies.
+- A travel-chat interface that sends the loaded page data to a server-side AI endpoint when deployed on Vercel.
+- A page-grounded OpenAI Responses API handler at `api/chat.js`, with an exact out-of-scope fallback and request limits.
 
 ## Run it
 
-Open `index.html` in a modern browser. The project uses plain HTML, CSS, and JavaScript and has no build step or package dependencies.
+Open `index.html` in a modern browser for the static demo. The project uses plain HTML, CSS, and JavaScript and has no build step or package dependencies. The AI endpoint requires server-side hosting.
 
 ## Public website
 
 The live site is [TripVibe Smart Travel Planner](https://suryanshsharma1109-ops.github.io/tripvibe-smart-travel-planner/).
 
-The repository's Pages source is configured for **GitHub Actions**. The workflow at `.github/workflows/deploy-pages.yml` publishes the repository root on pushes to `main`; it can also be run manually from the Actions tab.
+The repository's Pages source is configured for **GitHub Actions**. The workflow at `.github/workflows/deploy-pages.yml` publishes the repository root on pushes to `main`; it can also be run manually from the Actions tab. GitHub Pages only serves static files, so the existing Pages URL continues to show the clearly labeled travel-chat demo until the API is deployed on a serverless host.
 
 ## Data and estimate notes
 
@@ -39,11 +40,19 @@ Sources:
 - [Jalandhar fuel rates](https://www.ndtv.com/fuel-prices/petrol-price-in-jalandhar-city)
 - [Nearby rental listings and rates](https://pjcarrentals.com/car-rental-jalandhar/)
 
-## Prototype status
+## AI chat deployment
 
-The chat interface uses local sample replies; it is not connected to an AI model or a live itinerary-generation service yet. Route and price values are static starting points, not live data feeds. Connect a travel-data source and an AI service before presenting those features as live AI functionality.
+`api/chat.js` is a Vercel Node.js Function that calls the OpenAI Responses API. It receives the current webpage text, planner data, selected trip settings, and a short conversation history. The model is instructed to answer only from those supplied facts. If a question is outside the loaded page or the requested fact is missing, the endpoint returns exactly: `Please ask the questions according to the loaded webpage`.
+
+To make the AI version live:
+
+1. Import this GitHub repository into a Vercel project and deploy from the repository root.
+2. In the Vercel project's server-side Environment Variables, add `OPENAI_API_KEY` using a key from your OpenAI API account. Optionally set `OPENAI_MODEL` (defaults to `gpt-4.1-mini`).
+3. Redeploy after saving the environment variables. Open the resulting Vercel URL; that URL serves the same planner with `/api/chat` enabled.
+
+The currently published GitHub Pages URL remains static and cannot run `api/chat.js`. No API key is included in the repository. Route and price values are static planning estimates, not live data feeds.
 
 ### API key safety
 
-Do not put an AI API key in `index.html`, browser JavaScript, or any public repository file. GitHub Pages serves static files publicly, so a key placed in the page would be visible to every visitor. A real AI chat needs a separate server-side endpoint; store the provider key as a secret on that backend host and have the page call the endpoint. No AI key was supplied for this project, and none is included here.
+Do not put an AI API key in `index.html`, browser JavaScript, or any public repository file. Store it only in the hosting provider's encrypted server-side environment variables. `.env.example` contains variable names only. No API key was supplied or available in this workspace.
 
